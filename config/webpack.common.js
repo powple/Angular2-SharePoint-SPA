@@ -11,29 +11,28 @@ module.exports = {
     },
 
     resolve: {
-        extensions: ['', '.ts', '.js']
+        extensions: ['*', '.ts', '.js']
     },
 
     module: {
-        loaders: [
-            {
+        loaders: [{
                 test: /\.ts$/,
                 loaders: ['awesome-typescript-loader', 'angular2-template-loader']
             },
             {
                 test: /\.html$/,
                 exclude: helpers.root('src', 'index.html'),
-                loader: 'html'
+                loader: 'html-loader'
             },
             {
                 test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/,
                 exclude: helpers.root('src', 'static'),
-                loader: 'file?name=assets/[name].[hash].[ext]'
+                loader: 'file-loader?name=assets/[name].[hash].[ext]'
             },
             {
                 test: /^.*/,
                 include: helpers.root('src', 'static'),
-                loader: "file?name=static/[path][name].[ext]&context=./src/static"
+                loader: "file-loader?name=static/[path][name].[ext]&context=./src/static"
             },
             {
                 test: /\.css$/,
@@ -43,7 +42,7 @@ module.exports = {
             {
                 test: /\.css$/,
                 include: helpers.root('src', 'app'),
-                loader: 'raw'
+                loader: 'raw-loader'
             }
         ]
     },
@@ -52,8 +51,16 @@ module.exports = {
         new webpack.optimize.CommonsChunkPlugin({
             name: ['app', 'vendor', 'polyfills']
         }),
+        /**
+         * See: https://github.com/angular/angular/issues/11580
+         */
+        new webpack.ContextReplacementPlugin(
+            /angular(\\|\/)core(\\|\/)@angular/,
+            helpers.root('src', 'app'), {}
+        ),
         new CopyWebpackPlugin([{
-            from: 'src/static', to: 'static'
+            from: 'src/static',
+            to: 'static'
         }])
     ]
 };
